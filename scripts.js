@@ -1,12 +1,14 @@
 const vm = Vue.createApp({
     data () {
       return {
-        ubikeStops: []
+        ubikeStops: [],
+        searchTxt: '',
+        toggleCurrentSort: false,
+        toggleTotalSort: false
       }
     },
     methods: {
       timeFormat(t){
-
         var date = [], time = [];
 
         date.push(t.substr(0, 4));
@@ -17,6 +19,29 @@ const vm = Vue.createApp({
         time.push(t.substr(12, 2));
 
         return date.join("/") + ' ' + time.join(":");
+      },
+      filterCurrentBikes() {
+        this.toggleCurrentSort = !this.toggleCurrentSort;
+
+        if(this.toggleCurrentSort) {
+          this.ubikeStops.sort((a, b) => a.sbi - b.sbi);
+        }else {
+          this.ubikeStops.sort((a, b) => b.sbi - a.sbi);
+        }
+      },
+      filterTotalBikeGarges() {
+        this.toggleTotalSort = !this.toggleTotalSort;
+
+        if(this.toggleTotalSort) {
+          this.ubikeStops.sort((a, b) => a.tot - b.tot);
+        }else {
+          this.ubikeStops.sort((a, b) => b.tot - a.tot);
+        }
+      }
+    },
+    computed: {
+      filterStopName() {
+        return this.ubikeStops.filter(item => item.sna.includes(this.searchTxt));
       }
     },
     created() {
