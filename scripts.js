@@ -4,7 +4,10 @@ const vm = Vue.createApp({
         ubikeStops: [],
         searchTxt: '',
         toggleCurrentSort: false,
-        toggleTotalSort: false
+        toggleTotalSort: false,
+        pageIdx: 1,
+        pageEachNum: 20,
+        pageScopeLen: 5
       }
     },
     methods: {
@@ -37,11 +40,57 @@ const vm = Vue.createApp({
         }else {
           this.ubikeStops.sort((a, b) => b.tot - a.tot);
         }
+      },
+      incresePageIdx() {
+        if(this.pageIdx >= this.getTotalPageNum) {
+          return;
+        }
+
+        this.pageIdx++;
+      },
+      decresePageIdx() {
+        if(this.pageIdx <= 1) {
+          return;
+        }
+
+        this.pageIdx--;
       }
     },
     computed: {
       filterStopName() {
-        return this.ubikeStops.filter(item => item.sna.includes(this.searchTxt));
+        const filterUbikeStopsArr = this.ubikeStops.filter(item => item.sna.includes(this.searchTxt));
+        const startIdx = (this.pageIdx - 1) * this.pageEachNum;
+        const endIdx = startIdx + this.pageEachNum;
+        let pageEachStopsArr = [];
+
+        for(let i = startIdx; i < endIdx; i++) {
+          pageEachStopsArr.push(filterUbikeStopsArr[i]);
+        }
+
+        return pageEachStopsArr;
+      },
+      getTotalPageNum() {
+        return Math.ceil(this.ubikeStops.length / this.pageEachNum);
+      },
+      getPageStartNum() {
+        let startNum = this.pageIdx;
+        const num = this.pageScopeLen - 1;
+
+        if(startNum + num >= this.getTotalPageNum) {
+          startNum = this.getTotalPageNum - num;
+        }
+
+        return startNum;
+      },
+      getPageEndNum() {
+        const num = this.pageScopeLen - 1;
+        let endNum = this.pageIdx + num;
+
+        if(endNum >= this.getTotalPageNum) {
+          endNum = this.getTotalPageNum;
+        }
+
+        return endNum;
       }
     },
     created() {

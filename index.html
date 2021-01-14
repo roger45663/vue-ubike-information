@@ -1,66 +1,109 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>YouBike 臺北市公共自行車即時資訊</title>
-  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css'/>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>YouBike 臺北市公共自行車即時資訊</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+            integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M"
+            crossorigin="anonymous"
+        />
 
-  <style>
-    body{ padding: 1em;  }
-  </style>
+        <style>
+            body {
+                padding: 1em;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>YouBike 臺北市公共自行車即時資訊</h1>
 
-</head>
-<body>
+        <div id="app">
+            <p>站點名稱搜尋: <input type="text" v-model="searchTxt" /></p>
 
-  <h1>YouBike 臺北市公共自行車即時資訊</h1>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>場站名稱</th>
+                        <th>場站區域</th>
+                        <th>
+                            目前可用車輛
+                            <a
+                                href="javascript:;"
+                                class="btn-controller"
+                                @click="filterCurrentBikes"
+                            >
+                                <i
+                                    class="fas fa-caret-up"
+                                    v-show="toggleCurrentSort"
+                                ></i>
+                                <i
+                                    class="fas fa-caret-down"
+                                    v-show="!toggleCurrentSort"
+                                ></i>
+                            </a>
+                        </th>
+                        <th>
+                            總停車格
+                            <a
+                                href="javascript:;"
+                                class="btn-controller"
+                                @click="filterTotalBikeGarges"
+                            >
+                                <i
+                                    class="fas fa-caret-up"
+                                    v-show="toggleTotalSort"
+                                ></i>
+                                <i
+                                    class="fas fa-caret-down"
+                                    v-show="!toggleTotalSort"
+                                ></i>
+                            </a>
+                        </th>
+                        <th>資料更新時間</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="s in filterStopName">
+                        <td>{{ s.sno }}</td>
+                        <td>{{ s.sna }}</td>
+                        <td>{{ s.sarea }}</td>
+                        <td>{{ s.sbi }}</td>
+                        <td>{{ s.tot }}</td>
+                        <td>{{ timeFormat(s.mday) }}</td>
+                    </tr>
+                </tbody>
+            </table>
 
-  <div id="app">
-    <p>
-      站點名稱搜尋: <input type="text" v-model="searchTxt">
-    </p>
+            <div class="d-flex justify-content-center mt-5">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <li class="page-item" :class="{'disabled': pageIdx === 1}">
+                            <a class="page-link" href="#" aria-label="Previous" @click="decresePageIdx">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item" v-for="num in getTotalPageNum" :key="num"  :class="{'active': pageIdx === num}" v-show="num <= getPageEndNum && num >= getPageStartNum">
+                            <a class="page-link" href="#" @click="pageIdx = num">{{ num }}</a>
+                        </li>
+                        <li class="page-item" :class="{'disabled': pageIdx === getTotalPageNum}">
+                            <a class="page-link" href="#" aria-label="Next" @click="incresePageIdx">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
 
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>場站名稱</th>
-          <th>場站區域</th>
-          <th>
-            目前可用車輛
-            <a href="javascript:;" class="btn-controller" @click="filterCurrentBikes">
-              <i class="fas fa-caret-up" v-show="toggleCurrentSort"></i>
-              <i class="fas fa-caret-down" v-show="!toggleCurrentSort"></i>
-            </a>
-          </th>
-          <th>
-            總停車格
-            <a href="javascript:;" class="btn-controller" @click="filterTotalBikeGarges">
-              <i class="fas fa-caret-up" v-show="toggleTotalSort"></i>
-              <i class="fas fa-caret-down" v-show="!toggleTotalSort"></i>
-            </a>
-          </th>
-          <th>資料更新時間</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="s in filterStopName">
-          <td>{{ s.sno }}</td>
-          <td>{{ s.sna }}</td>
-          <td>{{ s.sarea }}</td>
-          <td>{{ s.sbi }}</td>
-          <td>{{ s.tot }}</td>
-          <td>{{ timeFormat(s.mday) }}</td>
-        </tr>
-      </tbody>
-
-    </table>
-
-  </div>
-
-  <script src="https://unpkg.com/vue@next"></script>
-  <script src="./scripts.js?v=2020081401"></script>
-
-</body>
+        <script src="https://unpkg.com/vue@next"></script>
+        <script src="./scripts.js?v=2020081401"></script>
+    </body>
 </html>
