@@ -1,12 +1,12 @@
 <template>
     <div id="app">
-        <SearchBar :searchTxt="searchTxt" />
+        <SearchBar :searchTxt="searchTxt" @filterTxt="updateSearchTxt" />
         <DataLists
             :filterStopName="filterStopName"
             :toggleTotalSort="toggleTotalSort"
             :toggleCurrentSort="toggleCurrentSort"
-            @sortCurrent="sortCurrentBikes"
-            @sortTotal="sortTotalBikeGarges"
+            @sortCurrent="sortBikes"
+            @sortTotal="sortBikes"
         />
         <Pagination
             :pageIdx="pageIdx"
@@ -44,22 +44,46 @@ export default {
         };
     },
     methods: {
-        sortCurrentBikes() {
-            this.toggleCurrentSort = !this.toggleCurrentSort;
+        // sortCurrentBikes() {
+        //     this.toggleCurrentSort = !this.toggleCurrentSort;
 
-            if (this.toggleCurrentSort) {
-                this.ubikeStops.sort((a, b) => a.sbi - b.sbi);
-            } else {
-                this.ubikeStops.sort((a, b) => b.sbi - a.sbi);
+        //     if (this.toggleCurrentSort) {
+        //         this.ubikeStops.sort((a, b) => a.sbi - b.sbi);
+        //     } else {
+        //         this.ubikeStops.sort((a, b) => b.sbi - a.sbi);
+        //     }
+        // },
+        // sortTotalBikeGarges() {
+        //     this.toggleTotalSort = !this.toggleTotalSort;
+
+        //     if (this.toggleTotalSort) {
+        //         this.ubikeStops.sort((a, b) => a.tot - b.tot);
+        //     } else {
+        //         this.ubikeStops.sort((a, b) => b.tot - a.tot);
+        //     }
+        // },
+        sortBikes(arr) {
+            let sortWay = false;
+            const sortType = arr[0];
+            const sortName = arr[1];
+
+            console.log(sortType, sortName);
+
+            switch(sortType) {
+                case 'current':
+                    this.toggleCurrentSort = !this.toggleCurrentSort;
+                    sortWay = this.toggleCurrentSort;
+                    break;
+                case 'total':
+                    this.toggleTotalSort = !this.toggleTotalSort;
+                    sortWay = this.toggleTotalSort;
+                    break;
             }
-        },
-        sortTotalBikeGarges() {
-            this.toggleTotalSort = !this.toggleTotalSort;
 
-            if (this.toggleTotalSort) {
-                this.ubikeStops.sort((a, b) => a.tot - b.tot);
+            if (sortWay) {
+                this.ubikeStops.sort((a, b) => a[sortName] - b[sortName]);
             } else {
-                this.ubikeStops.sort((a, b) => b.tot - a.tot);
+                this.ubikeStops.sort((a, b) => b[sortName] - a[sortName]);
             }
         },
         incresePageIdx() {
@@ -78,6 +102,9 @@ export default {
         },
         equalIdxToNum(val) {
           this.pageIdx = val;
+        },
+        updateSearchTxt(val) {
+            this.searchTxt = val;
         }
     },
     computed: {
@@ -85,6 +112,8 @@ export default {
             if(!this.ubikeStops.length) {
                 return;
             }
+
+            // console.log(this.searchTxt,this.ubikeStops);
 
             const filterUbikeStopsArr = this.ubikeStops.filter((item) =>
                 item.sna.includes(this.searchTxt)

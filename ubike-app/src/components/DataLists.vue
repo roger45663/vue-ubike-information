@@ -3,7 +3,7 @@ export default {
     props: {
         filterStopName: {
             type: Array,
-            default: []
+            default: () => []
         },
         toggleTotalSort: {
             type: Boolean,
@@ -44,7 +44,7 @@ export default {
                     <a
                         href="javascript:;"
                         class="btn-controller"
-                        @click="$emit('sortCurrent')"
+                        @click="$emit('sortCurrent', ['current', 'sbi'])"
                     >
                         <i
                             class="fas fa-caret-up"
@@ -61,7 +61,7 @@ export default {
                     <a
                         href="javascript:;"
                         class="btn-controller"
-                        @click="$emit('sortTotal')"
+                        @click="$emit('sortTotal', ['total', 'tot'])"
                     >
                         <i class="fas fa-caret-up" v-show="toggleTotalSort"></i>
                         <i
@@ -74,7 +74,7 @@ export default {
             </tr>
         </thead>
         <tbody>
-            <tr v-for="s in filterStopName">
+            <tr v-for="s in filterStopName" :key="s.sno">
                 <td>{{ s.sno }}</td>
                 <td>{{ s.sna }}</td>
                 <td>{{ s.sarea }}</td>
